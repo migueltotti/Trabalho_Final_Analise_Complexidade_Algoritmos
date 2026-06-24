@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 
 namespace Trabalho_Final_Analise_Complexidade_Algoritmos
@@ -7,55 +7,68 @@ namespace Trabalho_Final_Analise_Complexidade_Algoritmos
     {
         static void Main(string[] args)
         {
-
-            var tamanho = 10;
+            var tamanho = 50000;
 
             Console.WriteLine("Tamanho do vetor: {0}\n", tamanho);
 
-            for (int i = 0; i < 3; i++)
-            {
-                var vetor = gerarVetor(tamanho, i);
+            var vetorOriginal = gerarVetorAleatorio(tamanho);
 
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
+            var vetorParaMergeSort = new int[tamanho];
+            Array.Copy(vetorOriginal, vetorParaMergeSort, tamanho);
 
-                long totalInversoes = MergeSort(vetor, 0, vetor.Length - 1);
+            // ---------------------------------------------------------
+            // TESTE 1: FORÇA BRUTA O(n^2)
+            // ---------------------------------------------------------
+            Console.WriteLine("--- Teste Força Bruta O(n^2) ---");
+            var stopwatchBruta = new Stopwatch();
+            stopwatchBruta.Start();
 
-                stopwatch.Stop();
+            long inversoesBruta = ForcaBruta(vetorOriginal);
 
-                string tipo = string.Empty;
-                switch (i)
-                {
-                    case 0:
-                        tipo = "Melhor Caso (Crescente)"; break;
-                    case 1:
-                        tipo = "Pior Caso (Decrescente)"; break;
-                    case 2:
-                        tipo = "Caso Médio (Aleatório)"; break;
-                    default:
-                        tipo = "Desconhecido"; break;
-                }
+            stopwatchBruta.Stop();
+            Console.WriteLine("Total de Inversões: {0}", inversoesBruta);
+            Console.WriteLine("Tempo de Execução: {0}\n", stopwatchBruta.Elapsed);
 
-                Console.WriteLine("Caso: {0}", tipo);
-                Console.WriteLine("Tempo passado: {0}", stopwatch.Elapsed);
-                Console.WriteLine("Total de Inversões: {0}\n", totalInversoes);
-            }
+
+            // ---------------------------------------------------------
+            // TESTE 2: MERGE SORT O(n log n)
+            // ---------------------------------------------------------
+            Console.WriteLine("--- Teste MergeSort O(n log n) ---");
+            var stopwatchMerge = new Stopwatch();
+            stopwatchMerge.Start();
+
+            long inversoesMerge = MergeSort(vetorParaMergeSort, 0, vetorParaMergeSort.Length - 1);
+
+            stopwatchMerge.Stop();
+            Console.WriteLine("Total de Inversões: {0}", inversoesMerge);
+            Console.WriteLine("Tempo de Execução: {0}\n", stopwatchMerge.Elapsed);
         }
 
-        static int[] gerarVetor(int tamanho, int tipo)
+        static long ForcaBruta(int[] A)
+        {
+            long contador = 0;
+
+            for (int i = 0; i < A.Length; i++)
+            {
+                for (int j = i + 1; j < A.Length; j++)
+                {
+                    if (A[i] > A[j])
+                    {
+                        contador++;
+                    }
+                }
+            }
+            return contador;
+        }
+
+        static int[] gerarVetorAleatorio(int tamanho)
         {
             var vetor = new int[tamanho];
             Random rnd = new Random();
             for (int i = 0; i < tamanho; i++)
             {
-                if (tipo == 0)
-                    vetor[i] = i + 1;
-                else if (tipo == 1)
-                    vetor[i] = tamanho - i;
-                else if (tipo == 2)
-                    vetor[i] = rnd.Next(-1000000, 1000000); //randomização dos números 
+                vetor[i] = rnd.Next(-1000000000, 1000000000);
             }
-
             return vetor;
         }
 
@@ -65,14 +78,8 @@ namespace Trabalho_Final_Analise_Complexidade_Algoritmos
             if (p < r)
             {
                 int q = (p + r) / 2;
-
-                // Soma as inversões da metade esquerda
                 contador += MergeSort(A, p, q);
-
-                // Soma as inversões da metade direita
                 contador += MergeSort(A, q + 1, r);
-
-                // Soma as inversões encontradas durante a intercalação
                 contador += Intercala(A, p, q, r);
             }
             return contador;
@@ -86,16 +93,11 @@ namespace Trabalho_Final_Analise_Complexidade_Algoritmos
             int[] L = new int[n1];
             int[] R = new int[n2];
 
-            for (int i = 0; i < n1; i++)
-                L[i] = A[p + i];
+            for (int i = 0; i < n1; i++) L[i] = A[p + i];
+            for (int j = 0; j < n2; j++) R[j] = A[q + 1 + j];
 
-            for (int j = 0; j < n2; j++)
-                R[j] = A[q + 1 + j];
-
-            int iL = 0, iR = 0;
-            int k = p;
-
-            long inversoes = 0; 
+            int iL = 0, iR = 0, k = p;
+            long inversoes = 0;
 
             while (iL < n1 && iR < n2)
             {
@@ -108,25 +110,13 @@ namespace Trabalho_Final_Analise_Complexidade_Algoritmos
                 {
                     A[k] = R[iR];
                     iR++;
-
-                    inversoes += (n1 - iL);
+                    inversoes += (n1 - iL); // Contabiliza as inversões na intercalação
                 }
                 k++;
             }
 
-            while (iL < n1)
-            {
-                A[k] = L[iL];
-                iL++;
-                k++;
-            }
-
-            while (iR < n2)
-            {
-                A[k] = R[iR];
-                iR++;
-                k++;
-            }
+            while (iL < n1) { A[k] = L[iL]; iL++; k++; }
+            while (iR < n2) { A[k] = R[iR]; iR++; k++; }
 
             return inversoes;
         }
