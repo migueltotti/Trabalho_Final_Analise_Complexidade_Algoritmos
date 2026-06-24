@@ -266,7 +266,7 @@ $$\boxed{T(n) = \Theta(n \log n)}$$
 | Gustavo Azevedo | [@gusta-azv](https://github.com/gusta-azv) |
 | Hugo Pereira | [@HugoPereiraP](https://github.com/HugoPereiraP) |
 | Miguel Totti | [@migueltotti](https://github.com/migueltotti) |
-| Marcus Magri | [@gusta-azv](https://github.com/MarcusMagri) |
+| Marcus Magri | [@MarcusMagri](https://github.com/MarcusMagri) |
 
 </div>
 
